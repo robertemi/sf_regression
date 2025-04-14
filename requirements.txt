@@ -1,0 +1,5 @@
+Flask==3.0.3
+pandas==2.2.2
+python-dotenv==0.21.0
+simple-salesforce==1.12.6
+scikit-learn==1.5.1
