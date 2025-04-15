@@ -1,11 +1,11 @@
 import pandas as pd
+import numpy as np
+import pickle
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Input, Dense, BatchNormalization, Dropout
-from tensorflow.keras.regularizers import l2
+from sklearn.linear_model import LinearRegression
 
 df = pd.read_csv('leads.csv')
 X = df.drop(columns=['Name', 'Company', 'Probability'])
@@ -26,62 +26,21 @@ X = pd.DataFrame(X)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 
-model = Sequential()
-model.add(Input(shape=(X.shape[1],)))
-
-model.add(Dense(16, activation='relu', kernel_regularizer=l2(0.01)))
-BatchNormalization()
-Dropout(0.3)
-
-model.add(Dense(16, activation='relu'))
-
-model.add(Dense(16, activation='relu', kernel_regularizer=l2(0.01)))
-BatchNormalization()
-Dropout(0.3)
+lr = LinearRegression()
+lr.fit(X_train, y_train)
 
 
-model.add(Dense(16, activation='relu'))
-
-model.add(Dense(16, activation='relu', kernel_regularizer=l2(0.01)))
-BatchNormalization()
-Dropout(0.3)
-
-model.add(Dense(16, activation='relu'))
-
-model.add(Dense(16, activation='relu', kernel_regularizer=l2(0.01)))
-BatchNormalization()
-Dropout(0.3)
-
-model.add(Dense(1, activation='linear'))
-
-model.compile(optimizer='adam', loss='mse', metrics=['root_mean_squared_error'])
-
-results = model.fit(
-    X_train, y_train,
-    batch_size=32,
-    epochs=100,
-    validation_split=0.2
-)
-
-y_pred = model.predict(X_test)
-
-history_df = pd.DataFrame.from_dict(results.history)
-fig, ax1 = plt.subplots(figsize=(10, 7))
-
-ax1.plot(history_df.index, history_df['loss'], label='Train Loss', color='blue', linestyle='-')
-ax1.plot(history_df.index, history_df['val_loss'], label='Validation Loss', color='green', linestyle='--')
-ax1.set_ylabel('Loss')
-ax1.set_xlabel('Epochs')
-ax1.set_yscale('log')
-ax1.legend(loc='upper left')
-ax1.grid(True, linestyle='--', alpha=0.5)
+y_pred = lr.predict(X_test)
 
 
-ax2 = ax1.twinx()
-ax2.plot(history_df.index, history_df['root_mean_squared_error'], label='Train RMSE', color='orange', linestyle='-')
-ax2.plot(history_df.index, history_df['val_root_mean_squared_error'], label='Validation RMSE', color='red', linestyle='--')
-ax2.set_ylabel('Root Mean Squared Error')
-ax2.legend(loc='upper right')
+mae = np.mean(np.abs(y_test - y_pred))   
+print(mae)
 
-plt.title("Training Progress: Loss & RMSE Over Epochs")
-plt.show()
+with open('model.pkl', 'wb') as f:
+    pickle.dump(lr, f)
+
+with open('column_transformer.pkl', 'wb') as f:
+    pickle.dump(ct, f)
+
+with open('scaler.pkl', 'wb') as f:
+    pickle.dump(sc, f)
