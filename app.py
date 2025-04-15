@@ -33,7 +33,7 @@ sc = pickle.load(open('scaler.pkl', 'rb'))
 def home():
     return "Welcome to the Prediction API!"
 
-@app.route('/predict', methods=['POST']
+@app.route('/predict', methods=['POST'])
 def predict():
     try:
         # Get the input data from the request
