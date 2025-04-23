@@ -52,7 +52,7 @@ def predict():
             print(df)
 
         # Ensure required columns are present
-        required_columns = ['Status', 'Rating', 'Source', 'Revenue', 'Number of Employees']
+        required_columns = ['Status', 'Rating', 'Source', 'Revenue', 'Number_of_Employees']
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
             return jsonify({'error': f'Missing columns: {missing_columns}'}), 400
