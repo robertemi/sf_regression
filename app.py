@@ -40,12 +40,16 @@ def predict():
         data = request.json  # Expecting a single customer record as a dictionary
         if not data:
             return jsonify({'error': 'No data provided'}), 400
+        else:
+            print(data)
 
         # Convert the input data to a DataFrame with a single row
         try:
             df = pd.DataFrame([data])  # Wrap the dictionary in a list to create a single-row DataFrame
         except Exception as e:
             return jsonify({'error': f'Error creating DataFrame: {str(e)}'}), 400
+        finally:
+            print(df)
 
         # Ensure required columns are present
         required_columns = ['Status', 'Rating', 'Source', 'Revenue', 'Number of Employees']
