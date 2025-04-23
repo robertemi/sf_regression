@@ -16,12 +16,11 @@ password = os.environ.get('PASSWORD')
 security_token = os.environ.get('SECURITY_TOKEN')
 instance_url = os.environ.get('SALESFORCE_INSTANCE_URL')
 
-# Authenticate with Salesforce
+# authenticate with Salesforce
 sf = Salesforce(
     username=username,
     password=password,
     security_token=security_token
-    #domain='test'  # Use 'test' for sandbox or 'login' for production
 )
 
 
@@ -36,47 +35,45 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Get the input data from the request
-        data = request.json  # Expecting a single customer record as a dictionary
+        # get the input data from the request
+        data = request.json  # jsonify the data
         if not data:
             return jsonify({'error': 'No data provided'}), 400
         else:
             print(data)
 
-        # Convert the input data to a DataFrame with a single row
+        # convert input data to pandas data-frame
         try:
-            df = pd.DataFrame([data])  # Wrap the dictionary in a list to create a single-row DataFrame
+            df = pd.DataFrame([data])
         except Exception as e:
             return jsonify({'error': f'Error creating DataFrame: {str(e)}'}), 400
-        finally:
-            print(df)
 
-        # Ensure required columns are present
+        # check if required columns are present
         required_columns = ['Status', 'Rating', 'Source', 'Revenue', 'Number_of_Employees']
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
             return jsonify({'error': f'Missing columns: {missing_columns}'}), 400
 
-        # Transform the data using the saved ColumnTransformer
+        # transform data using saved ColumnTransformer
         try:
             X = df.drop(columns=['Name', 'Company'])
             X = ct.transform(X)
         except Exception as e:
             return jsonify({'error': f'Error transforming data: {str(e)}'}), 500
 
-        # Standardize the data using the saved StandardScaler
+        # scale data using saved StandardScaler
         try:
             X = sc.transform(X)
         except Exception as e:
             return jsonify({'error': f'Error scaling data: {str(e)}'}), 500
 
-        # Make predictions
+        # predict
         try:
-            prediction = model.predict(X)[0]  # Get the single prediction
+            prediction = model.predict(X)[0]  # get single prediction
         except Exception as e:
             return jsonify({'error': f'Error making predictions: {str(e)}'}), 500
 
-        # Prepare the response
+        # prepare response
         response = {
             'Prediction': prediction
         }
